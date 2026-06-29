@@ -1,0 +1,17 @@
+[Unit]
+Description=Aiqfome Eyes — animated ghost eyes on LCD
+After=multi-user.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/aiqfome-iot
+Environment=SDL_VIDEODRIVER=fbcon
+Environment=SDL_FBDEV=/dev/fb0
+Environment=SDL_NOMOUSE=1
+ExecStart=/home/pi/aiqfome-iot/.venv/bin/python -m src.main --backend fbdev --config /home/pi/aiqfome-iot/config.yaml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

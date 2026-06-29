@@ -1,0 +1,42 @@
+display:
+  width: 480
+  height: 320
+  fps: 30
+  rotation: 90
+
+colors:
+  background: "#7B2CBF"
+  eyes: "#FFFFFF"
+
+eyes:
+  from_logo: true
+  center_y_offset: 0
+
+blink:
+  min_interval_s: 3.0
+  max_interval_s: 6.0
+  close_duration_ms: 80
+  open_duration_ms: 80
+  closed_hold_ms: 50
+  double_blink_chance: 0.1
+
+animation:
+  idle_min_s: 10.0
+  idle_max_s: 25.0
+  curious_min_s: 6.0
+  curious_max_s: 12.0
+  sleepy_min_s: 12.0
+  sleepy_max_s: 20.0
+  alert_min_s: 5.0
+  alert_max_s: 10.0
+  look_offset_x: 10.0
+  look_offset_y: 6.0
+  look_move_ms: 400.0
+  look_return_ms: 400.0
+  look_hold_min_ms: 1200.0
+  look_hold_max_ms: 2500.0
+  touch_glance_factor: 0.12
+  touch_glance_max_x: 12.0
+  touch_glance_max_y: 8.0
+  touch_glance_hold_ms: 300.0
+  touch_glance_return_ms: 600.0
