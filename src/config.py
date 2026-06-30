@@ -15,6 +15,7 @@ class DisplayConfig:
     height: int
     fps: int
     rotation: int
+    fullscreen: bool = False
 
 
 @dataclass(frozen=True)

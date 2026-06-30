@@ -3,6 +3,7 @@ display:
   height: 320
   fps: 30
   rotation: 90
+  fullscreen: false
 
 colors:
   background: "#7B2CBF"

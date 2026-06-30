@@ -13,11 +13,11 @@ def _default_config_path() -> Path:
     return Path(__file__).resolve().parent.parent / "config.yaml"
 
 
-def _create_backend(name: str, config: AppConfig, fbdev: str):
+def _create_backend(name: str, config: AppConfig, fbdev: str, fullscreen: bool | None):
     if name == "window":
         from src.display.pygame_window import PygameWindowBackend
 
-        return PygameWindowBackend(config.display)
+        return PygameWindowBackend(config.display, fullscreen=fullscreen)
     if name == "fbdev":
         from src.display.pygame_fbdev import PygameFbdevBackend
 
@@ -25,9 +25,9 @@ def _create_backend(name: str, config: AppConfig, fbdev: str):
     raise ValueError(f"Unknown backend: {name}")
 
 
-def run(config_path: Path, backend_name: str, fbdev: str) -> int:
+def run(config_path: Path, backend_name: str, fbdev: str, fullscreen: bool | None) -> int:
     config = load_config(config_path)
-    backend = _create_backend(backend_name, config, fbdev)
+    backend = _create_backend(backend_name, config, fbdev, fullscreen)
     animator = EyeAnimator(config)
 
     bg_color = hex_to_rgb(config.colors.background)
@@ -85,13 +85,19 @@ def main(argv: list[str] | None = None) -> int:
         default="/dev/fb0",
         help="Framebuffer device path (fbdev backend only)",
     )
+    parser.add_argument(
+        "--fullscreen",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Fullscreen sem bordas (window backend). Padrão: display.fullscreen no config",
+    )
     args = parser.parse_args(argv)
 
     if not args.config.exists():
         print(f"Config not found: {args.config}", file=sys.stderr)
         return 1
 
-    return run(args.config, args.backend, args.fbdev)
+    return run(args.config, args.backend, args.fbdev, args.fullscreen)
 
 
 if __name__ == "__main__":
