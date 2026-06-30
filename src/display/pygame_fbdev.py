@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 
-# SDL precisa ser configurado ANTES de importar pygame.
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_NOMOUSE", "1")
 
@@ -15,17 +14,17 @@ from src.display.base import InputState
 class PygameFbdevBackend:
     """Raspberry Pi backend that renders directly to the LCD framebuffer."""
 
-    def __init__(self, config: DisplayConfig, fbdev: str = "/dev/fb0", title: str = "Aiqfome Eyes") -> None:
+    def __init__(self, config, fbdev="/dev/fb0", title="Aiqfome Eyes"):
         self._fbdev_path = fbdev
         self._config = config
         self._clock = pygame.time.Clock()
         self._screen = pygame.display.set_mode((config.width, config.height))
         self._running = True
 
-    def get_surface(self) -> pygame.Surface:
+    def get_surface(self):
         return self._screen
 
-    def flip(self) -> None:
+    def flip(self):
         pygame.display.flip()
         try:
             raw_data = pygame.image.tostring(self._screen, "RGB")
@@ -34,11 +33,11 @@ class PygameFbdevBackend:
         except OSError:
             pass
 
-    def tick(self, fps: int) -> None:
+    def tick(self, fps):
         self._clock.tick(fps)
 
-    def handle_events(self) -> InputState:
-        touches: list[tuple[int, int]] = []
+    def handle_events(self):
+        touches = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self._running = False
@@ -52,5 +51,5 @@ class PygameFbdevBackend:
                     touches.append((int(event.x * w), int(event.y * h)))
         return InputState(running=self._running, touches=tuple(touches))
 
-    def quit(self) -> None:
+    def quit(self):
         pygame.quit()
