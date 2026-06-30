@@ -14,28 +14,44 @@ class PygameFbdevBackend:
     def __init__(
         self,
         config: DisplayConfig,
-        fbdev: str = "/dev/fb0",
+        fbdev: str = "/dev/fb1",  # Mudamos o padrão para fb1 por segurança
         title: str = "Aiqfome Eyes",
     ) -> None:
-        os.environ.setdefault("SDL_VIDEODRIVER", "fbcon")
-        os.environ.setdefault("SDL_FBDEV", fbdev)
-        os.environ.setdefault("SDL_NOMOUSE", "1")
-
+        # Força o Pygame a rodar na memória (sem depender de drivers X11 ou fbdev nativos)
+        os.environ["SDL_VIDEODRIVER"] = "dummy"
+        os.environ["SDL_NOMOUSE"] = "1"
+        
         pygame.init()
-        pygame.mouse.set_visible(False)
+        
+        # Guardamos o caminho da tela pequena para usar depois
+        self._fbdev_path = fbdev 
+        self._config = config
         self._clock = pygame.time.Clock()
+        
+        # Cria a tela na memória com a resolução correta
         self._screen = pygame.display.set_mode(
-            (config.width, config.height),
-            pygame.FULLSCREEN,
+            (config.width, config.height)
         )
-        pygame.display.set_caption(title)
         self._running = True
 
     def get_surface(self) -> pygame.Surface:
         return self._screen
 
     def flip(self) -> None:
+            # 1. Faz o Pygame atualizar a surface interna
         pygame.display.flip()
+            
+            # 2. Copia os pixels da memória direto para o hardware da telinha (/dev/fb1)
+        try:
+                # Transforma os gráficos do pygame em bytes puros de imagem (RGB ou RGBA)
+            raw_data = pygame.image.tostring(self._screen, "RGB")
+                
+                # Abre o arquivo da tela pequena e escreve os pixels brutos lá dentro
+            with open(self._fbdev_path, "wb") as fb:
+                    fb.write(raw_data)
+        except Exception as e:
+                # Evita crashar o loop se houver erro temporário de escrita
+            pass
 
     def tick(self, fps: int) -> None:
         self._clock.tick(fps)
