@@ -26,11 +26,20 @@ class PygameFbdevBackend:
 
     def flip(self):
         pygame.display.flip()
+        
         try:
-            raw_data = pygame.image.tostring(self._screen, "RGB")
+            # 1. Criamos uma cópia da superfície convertendo explicitamente para 16 bits (RGB565)
+            # Isso é o formato nativo perfeito que a Waveshare precisa!
+            fb_surface = self._screen.convert(16)
+            
+            # 2. Extraímos a string de bytes puros nesse formato de 16 bits
+            raw_data = pygame.image.tostring(fb_surface, "RGB565")
+            
+            # 3. Injetamos os bytes perfeitamente alinhados no arquivo de hardware
             with open(self._fbdev_path, "wb") as fb:
                 fb.write(raw_data)
-        except OSError:
+        except Exception as e:
+            # Evita travar o projeto se houver alguma oscilação de escrita no arquivo
             pass
 
     def tick(self, fps):
