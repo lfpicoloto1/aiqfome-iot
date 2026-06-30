@@ -15,12 +15,7 @@ from src.display.base import InputState
 class PygameFbdevBackend:
     """Raspberry Pi backend that renders directly to the LCD framebuffer."""
 
-    def __init__(
-        self,
-        config: DisplayConfig,
-        fbdev: str = "/dev/fb1",
-        title: str = "Aiqfome Eyes",
-    ) -> None:
+    def __init__(self, config: DisplayConfig, fbdev: str = "/dev/fb0", title: str = "Aiqfome Eyes") -> None:
         self._fbdev_path = fbdev
         self._config = config
         self._clock = pygame.time.Clock()
