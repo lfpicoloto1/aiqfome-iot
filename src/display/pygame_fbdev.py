@@ -2,19 +2,17 @@ from __future__ import annotations
 
 import os
 
-os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
-os.environ.setdefault("SDL_NOMOUSE", "1")
-
-import pygame
-
-from src.config import DisplayConfig
-from src.display.base import InputState
-
 
 class PygameFbdevBackend:
     """Raspberry Pi backend that renders directly to the LCD framebuffer."""
 
     def __init__(self, config, fbdev="/dev/fb0", title="Aiqfome Eyes"):
+        os.environ["SDL_VIDEODRIVER"] = "dummy"
+        os.environ["SDL_NOMOUSE"] = "1"
+
+        import pygame
+
+        self._pygame = pygame
         self._fbdev_path = fbdev
         self._config = config
         self._clock = pygame.time.Clock()
@@ -25,27 +23,24 @@ class PygameFbdevBackend:
         return self._screen
 
     def flip(self):
+        pygame = self._pygame
         pygame.display.flip()
-        
+
         try:
-            # 1. Criamos uma cópia da superfície convertendo explicitamente para 16 bits (RGB565)
-            # Isso é o formato nativo perfeito que a Waveshare precisa!
             fb_surface = self._screen.convert(16)
-            
-            # 2. Extraímos a string de bytes puros nesse formato de 16 bits
             raw_data = pygame.image.tostring(fb_surface, "RGB565")
-            
-            # 3. Injetamos os bytes perfeitamente alinhados no arquivo de hardware
             with open(self._fbdev_path, "wb") as fb:
                 fb.write(raw_data)
-        except Exception as e:
-            # Evita travar o projeto se houver alguma oscilação de escrita no arquivo
+        except OSError:
             pass
 
     def tick(self, fps):
         self._clock.tick(fps)
 
     def handle_events(self):
+        from src.display.base import InputState
+
+        pygame = self._pygame
         touches = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -61,4 +56,4 @@ class PygameFbdevBackend:
         return InputState(running=self._running, touches=tuple(touches))
 
     def quit(self):
-        pygame.quit()
+        self._pygame.quit()

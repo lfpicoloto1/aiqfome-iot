@@ -7,8 +7,6 @@ from pathlib import Path
 from src.animation.animator import EyeAnimator
 from src.animation.eyes import draw_eyes
 from src.config import AppConfig, hex_to_rgb, load_config
-from src.display.pygame_fbdev import PygameFbdevBackend
-from src.display.pygame_window import PygameWindowBackend
 
 
 def _default_config_path() -> Path:
@@ -17,8 +15,12 @@ def _default_config_path() -> Path:
 
 def _create_backend(name: str, config: AppConfig, fbdev: str):
     if name == "window":
+        from src.display.pygame_window import PygameWindowBackend
+
         return PygameWindowBackend(config.display)
     if name == "fbdev":
+        from src.display.pygame_fbdev import PygameFbdevBackend
+
         return PygameFbdevBackend(config.display, fbdev=fbdev)
     raise ValueError(f"Unknown backend: {name}")
 
